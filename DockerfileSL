@@ -1,0 +1,33 @@
+FROM alpine:latest
+
+ENV PYTHONPATH=/libraries
+
+VOLUME /tests
+VOLUME /libraries
+VOLUME /reports
+VOLUME /tmp/.X11-unix
+
+RUN apk update
+
+#chromium and chromedriver
+RUN apk add chromium chromium-chromedriver
+
+#python + pip
+RUN apk add --no-cache python3 && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
+    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
+    rm -r /root/.cache
+
+
+##packages to run chromium in X session
+RUN apk add mesa-gl
+
+RUN pip install --no-cache-dir \
+  requests==2.6.2 \
+  requests-toolbelt \
+  robotframework==3.1.1 \
+  robotframework-seleniumlibrary \
+  selenium==3.8.0
